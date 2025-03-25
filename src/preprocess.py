@@ -2,7 +2,6 @@ import os
 import numpy as np
 import medmnist
 from medmnist import INFO
-from torchvision import transforms
 
 # Ruta donde se guardarán los .npz
 data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
@@ -15,12 +14,10 @@ def main():
     info = INFO[flag]
     DataClass = getattr(medmnist, info['python_class'])
 
-    transform = transforms.Compose([transforms.ToTensor()])
-
     for split_name in ['train', 'val', 'test']:
         
         # Crea el dataset correspondiente
-        dataset = DataClass(split=split_name, transform=transform, download=True)
+        dataset = DataClass(split=split_name, download=True)
         
         # Extrae imágenes y etiquetas
         X = dataset.imgs                   

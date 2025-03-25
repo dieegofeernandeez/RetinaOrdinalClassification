@@ -1,9 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 import numpy as np
-import os
 
-npz_file = 'data/retina_train.npz'
 
 class RetinaDataset(Dataset):
     def __init__(self, npz_file, transform=None):
@@ -16,7 +14,6 @@ class RetinaDataset(Dataset):
 
         self.transform = transform
 
-        self.X = np.transpose(self.X, (0, 3, 1, 2))
 
     def __len__(self):
         return len(self.X)
@@ -26,14 +23,13 @@ class RetinaDataset(Dataset):
         image = self.X[idx]
         label = self.Y[idx]
 
-        # Convertimos a Tensores de PyTorch
-        image = torch.from_numpy(image).float()
-        label = torch.tensor(label).long()
-
         if self.transform:
-            image = self.transform(image)
-
+            image = self.transform(image)  
+        else:
+            image = torch.from_numpy(image).float()  
+            if image.ndim == 3:  
+                image = image.permute(2, 0, 1)  
+            elif image.ndim == 2:  
+                image = image.unsqueeze(0)  
+        label = torch.tensor(int(label)).long()  
         return image, label
-
-if __name__ == '__main__':
-    main()
