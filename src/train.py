@@ -5,7 +5,7 @@ import torch.optim as optim
 import numpy as np
 
 # Importar nuestro modelo ResNet18 adaptado a 4 salidas
-from model import OrdinalResNet18
+from model import OrdinalResNet50
 
 # Importar la función que construye los DataLoaders (train, val, test)
 from data_loaders import get_loaders
@@ -124,16 +124,19 @@ def main():
     train_loader, val_loader, test_loader = get_loaders()
 
     # 3) Instanciamos el modelo
-    model = OrdinalResNet18(pretrained=True, freeze_backbone=False).to(device)
+    model = OrdinalResNet50(pretrained=True, freeze_backbone=False).to(device)
 
     # 4) Definimos optimizador (Adam)
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2)
+
 
     # 5) Bucle de entrenamiento
-    num_epochs = 5
+    num_epochs = 15
     for epoch in range(num_epochs):
         train_loss = train_one_epoch(model, train_loader, optimizer, device)
         val_loss, val_acc, val_mae = validate(model, val_loader, device)
+        scheduler.step(val_loss)
 
         print(f"Epoch {epoch+1}/{num_epochs}:")
         print(f"  -> Train Loss: {train_loss:.4f}")

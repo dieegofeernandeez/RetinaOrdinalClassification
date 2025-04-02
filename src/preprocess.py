@@ -23,7 +23,6 @@ def main():
         X = dataset.imgs                   
         y = dataset.labels.squeeze()       
         
-        # Nombre de salida
         out_path = os.path.join(data_dir, f'retina_{split_name}.npz')
         
         # Guarda en formato .npz comprimido
