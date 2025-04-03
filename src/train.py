@@ -3,30 +3,12 @@ import random
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
-
-# Importar nuestro modelo ResNet18 adaptado a 4 salidas
 from model import OrdinalResNet50
-
-# Importar la función que construye los DataLoaders (train, val, test)
 from data_loaders import get_loaders
 
 
 def ordinal_cross_entropy_loss(outputs, targets):
-    """
-    Implementación sencilla de la 'Ordinal Cross Entropy'
-    para 5 clases (0..4) -> 4 salidas (K-1).
-    
-    outputs: [batch_size, 4] => logits 
-             (cada logit corresponde a p(y >= k) para k=1..4)
-    targets: [batch_size] => etiqueta entera en [0..4]
-    
-    Estrategia:
-      - Para cada muestra i, de etiqueta t, generamos un vector binario de longitud 4:
-          target_mask[i, c] = 1 si t >= c+1, sino 0
-        c = 0..3 (para las 4 salidas)
-      - Aplicamos Binary Cross Entropy con logits sobre cada neurona y su objetivo (0/1).
-      - Se hace la media (reduction='mean').
-    """
+
     device = outputs.device
     B, K_minus_1 = outputs.shape  # B = batch_size, K_minus_1 = 4
     # Generamos la máscara binaria
@@ -41,9 +23,7 @@ def ordinal_cross_entropy_loss(outputs, targets):
 
 
 def train_one_epoch(model, loader, optimizer, device):
-    """
-    Recorre una época completa de entrenamiento sobre 'loader'.
-    """
+
     model.train()
     total_loss = 0.0
     total_samples = 0
@@ -68,11 +48,7 @@ def train_one_epoch(model, loader, optimizer, device):
 
 
 def validate(model, loader, device):
-    """
-    Modo evaluación:
-      - calculamos la pérdida ordinal,
-      - computamos métrica de exactitud y un MAE ordinal como ejemplo.
-    """
+
     model.eval()
     total_loss = 0.0
     total_samples = 0
@@ -102,10 +78,10 @@ def validate(model, loader, device):
     preds_array = np.concatenate(preds_list)
     labels_array = np.concatenate(labels_list)
 
-    # Cálculo de exactitud
+    # Cálculo de accracy
     accuracy = (preds_array == labels_array).mean()
 
-    # Cálculo de MAE ordinal
+    # Cálculo de 
     mae = np.mean(np.abs(preds_array - labels_array))
 
     return avg_loss, accuracy, mae
